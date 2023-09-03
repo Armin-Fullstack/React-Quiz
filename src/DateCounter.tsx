@@ -21,9 +21,9 @@ function reducer(currentState: State, action: Action): State {
     case "dec":
       return { ...currentState, count: currentState.count - currentState.step };
     case "setCount":
-      return { ...currentState, count: action.payload };
+      return { ...currentState, count: action.payload! };
     case "setStep":
-      return { ...currentState, step: action.payload };
+      return { ...currentState, step: action.payload! };
     case "reset":
       return initialState;
     default:
