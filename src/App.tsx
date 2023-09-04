@@ -4,20 +4,15 @@ import QuestionBar from "./QuestionBar";
 import Loader from "./Loader";
 import Error from "./Error";
 import StartScreen from "./StartScreen";
+import Question from "./Question";
 
-interface AppAction {
-  type: "dataReceived" | "dataFailed";
-  payload?: object[];
-}
-interface AppState {
-  questions: object[];
-  status: string;
-}
+import { AppAction, AppState } from "./Type";
 
-const initailState = {
+const initailState: AppState = {
   questions: [],
   // loading , error , ready , active , finished
   status: "loading",
+  index: 0
 };
 
 function reducer(currentState: AppState, action: AppAction): AppState {
@@ -33,14 +28,20 @@ function reducer(currentState: AppState, action: AppAction): AppState {
         ...currentState,
         status: "error",
       };
+    case "start":
+      return {
+        ...currentState,
+        status: "active",
+      };
     default:
       throw new Error("Action unknown!");
   }
 }
 
 export default function App(): JSX.Element {
-  const [{questions , status}, dispatch] = useReducer(reducer, initailState);
-  const numQuestions = questions.length
+  const [{ questions, status , index}, dispatch] = useReducer(reducer, initailState);
+  console.log(questions);
+  const numQuestions = questions.length;
   useEffect(() => {
     fetch("http://localhost:9000/questions")
       .then((res) => res.json())
@@ -53,9 +54,11 @@ export default function App(): JSX.Element {
       <QuestionBar>
         {status === "loading" && <Loader />}
         {status === "error" && <Error />}
-        {status === "ready" && <StartScreen numQuestions = {numQuestions}/>}
-        {/* <p>1/15</p>
-        <p>Question?</p> */}
+        {status === "ready" && (
+          <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
+        )}
+        {status === "active" && <Question question = {questions[index]} />}
+        
       </QuestionBar>
     </div>
   );
