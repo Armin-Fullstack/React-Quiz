@@ -5,14 +5,15 @@ export interface QestionBarProps {
   children: React.ReactNode
 }
 export interface AppAction {
-  type: "dataReceived" | "dataFailed" | "start";
-  payload?: Question[];
+  type: "dataReceived" | "dataFailed" | "start" | "newAnswer";
+  payload?: Question[] | number | null;
 }
 
 export interface AppState {
   questions: Question[];
   status: string;
-  index: number
+  index: number;
+  answer: null | number
 }
 
 export interface StartScreenProps {
@@ -29,8 +30,12 @@ export interface Question {
 
 export interface QuestionProps {
   question: Question;
+  answer: number | null;
+  dispatch: Dispatch<AppAction>;
 }
 
 export interface OptionsProps {
-  options: Question
+  options: Question;
+  answer: number | null;
+  dispatch: Dispatch<AppAction>;
 }

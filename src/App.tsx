@@ -6,23 +6,27 @@ import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
 
-import { AppAction, AppState } from "./Type";
+import { AppAction, AppState} from "./Type";
 
 const initailState: AppState = {
   questions: [],
   // loading , error , ready , active , finished
   status: "loading",
-  index: 0
+  index: 0,
+  answer: null
 };
 
 function reducer(currentState: AppState, action: AppAction): AppState {
   switch (action.type) {
     case "dataReceived":
-      return {
-        ...currentState,
-        questions: action.payload!,
-        status: "ready",
-      };
+      if(Array.isArray(action.payload) && action.payload.every(item => typeof item === "object" && item !== null)) {
+        return {
+          ...currentState,
+          questions: action.payload!,
+          status: "ready",
+        };
+      }
+      break;
     case "dataFailed":
       return {
         ...currentState,
@@ -33,14 +37,22 @@ function reducer(currentState: AppState, action: AppAction): AppState {
         ...currentState,
         status: "active",
       };
+      case "newAnswer" : 
+      if(typeof action.payload === "number" ||  action.payload === null) {
+        return {
+          ...currentState,
+          answer: action.payload!
+        }
+      }
+      break;
     default:
-      throw new Error("Action unknown!");
+      return currentState ;
   }
+  return currentState
 }
 
 export default function App(): JSX.Element {
-  const [{ questions, status , index}, dispatch] = useReducer(reducer, initailState);
-  console.log(questions);
+  const [{ questions, status , index, answer}, dispatch] = useReducer(reducer, initailState);
   const numQuestions = questions.length;
   useEffect(() => {
     fetch("http://localhost:9000/questions")
@@ -57,7 +69,7 @@ export default function App(): JSX.Element {
         {status === "ready" && (
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
-        {status === "active" && <Question question = {questions[index]} />}
+        {status === "active" && <Question question = {questions[index]} dispatch = {dispatch} answer = {answer}/>}
         
       </QuestionBar>
     </div>
