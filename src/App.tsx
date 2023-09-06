@@ -18,7 +18,7 @@ const initailState: AppState = {
   index: 0,
   answer: null,
   points: 0,
-  highscore: 0
+  highscore: 0,
 };
 
 function reducer(currentState: AppState, action: AppAction): AppState {
@@ -47,12 +47,24 @@ function reducer(currentState: AppState, action: AppAction): AppState {
         ...currentState,
         status: "active",
       };
-      case "finish" : 
+    case "finish":
       return {
         ...currentState,
         status: "finished",
-        highscore: currentState.points > currentState.highscore ? currentState.points : currentState.highscore 
-      }
+        highscore:
+          currentState.points > currentState.highscore
+            ? currentState.points
+            : currentState.highscore,
+      };
+    case "reset":
+      return {
+        ...currentState,
+        index: 0,
+        answer: null,
+        points: 0,
+        highscore: 0,
+        status: "ready"
+      };
     case "newAnswer": {
       const question = currentState.questions.at(currentState.index);
       if (typeof action.payload === "number" || action.payload === null) {
@@ -78,14 +90,16 @@ function reducer(currentState: AppState, action: AppAction): AppState {
   }
   return currentState;
 }
+console.log(questions);
 
 export default function App(): JSX.Element {
-  const [{ questions, status, index, answer, points, highscore }, dispatch] = useReducer(
-    reducer,
-    initailState
-  );
+  const [{ questions, status, index, answer, points, highscore }, dispatch] =
+    useReducer(reducer, initailState);
   const numQuestions = questions.length;
-  const totalPossiblePoints = questions.reduce((acc , curr) => acc + curr.points , 0)
+  const totalPossiblePoints = questions.reduce(
+    (acc, curr) => acc + curr.points,
+    0
+  );
   useEffect(() => {
     fetch("http://localhost:9000/questions")
       .then((res) => res.json())
@@ -98,21 +112,40 @@ export default function App(): JSX.Element {
       <QuestionBar>
         {status === "loading" && <Loader />}
         {status === "error" && <Error />}
-        {status === "ready" && (
+        {status === "ready"  && (
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
         {status === "active" && (
           <>
-          <Progress index = {index} numQuestions = {numQuestions} points={points} totalPossiblePoints={totalPossiblePoints} answer = {answer}/>
-          <Question
-            question={questions[index]}
-            dispatch={dispatch}
-            answer={answer}
+            <Progress
+              index={index}
+              numQuestions={numQuestions}
+              points={points}
+              totalPossiblePoints={totalPossiblePoints}
+              answer={answer}
             />
-            {answer !== null && <NextButton dispatch={dispatch} index={index} numQuestions={numQuestions} />}
+            <Question
+              question={questions[index]}
+              dispatch={dispatch}
+              answer={answer}
+            />
+            {answer !== null && (
+              <NextButton
+                dispatch={dispatch}
+                index={index}
+                numQuestions={numQuestions}
+              />
+            )}
           </>
         )}
-        {status === "finished" && <FinishScreen points={points} totalPossiblePoints={totalPossiblePoints} highscore = {highscore}/>}
+        {status === "finished" && (
+          <FinishScreen
+            points={points}
+            totalPossiblePoints={totalPossiblePoints}
+            highscore={highscore}
+            dispatch={dispatch}
+          />
+        )}
       </QuestionBar>
     </div>
   );

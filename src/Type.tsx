@@ -5,7 +5,7 @@ export interface QestionBarProps {
   children: React.ReactNode
 }
 export interface AppAction {
-  type: "dataReceived" | "dataFailed" | "start" | "newAnswer" | "nextQuestion" | "finish";
+  type: "dataReceived" | "dataFailed" | "start" | "newAnswer" | "nextQuestion" | "finish" | "reset";
   payload?: Question[] | number | null;
 }
 
@@ -58,5 +58,6 @@ export interface ProgressProps {
 export interface FinishScreenProps {
   points: number;
   totalPossiblePoints: number;
-  highscore: number
+  highscore: number;
+  dispatch: Dispatch<AppAction>;
 }
