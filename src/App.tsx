@@ -13,7 +13,8 @@ const initailState: AppState = {
   // loading , error , ready , active , finished
   status: "loading",
   index: 0,
-  answer: null
+  answer: null,
+  points: 0
 };
 
 function reducer(currentState: AppState, action: AppAction): AppState {
@@ -38,13 +39,17 @@ function reducer(currentState: AppState, action: AppAction): AppState {
         status: "active",
       };
       case "newAnswer" : 
+      {
+      const question = currentState.questions.at(currentState.index)
       if(typeof action.payload === "number" ||  action.payload === null) {
         return {
           ...currentState,
-          answer: action.payload!
+          answer: action.payload!,
+          points: action.payload === question.correctOption ? currentState.points + question.points : currentState.points
         }
       }
       break;
+    }
     default:
       return currentState ;
   }

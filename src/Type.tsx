@@ -13,7 +13,8 @@ export interface AppState {
   questions: Question[];
   status: string;
   index: number;
-  answer: null | number
+  answer: null | number;
+  points: number
 }
 
 export interface StartScreenProps {
