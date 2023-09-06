@@ -9,6 +9,7 @@ import NextButton from "./NextButton";
 
 import { AppAction, AppState } from "./Type";
 import Progress from "./Progress";
+import FinishScreen from "./FinishScreen";
 
 const initailState: AppState = {
   questions: [],
@@ -17,6 +18,7 @@ const initailState: AppState = {
   index: 0,
   answer: null,
   points: 0,
+  highscore: 0
 };
 
 function reducer(currentState: AppState, action: AppAction): AppState {
@@ -45,6 +47,12 @@ function reducer(currentState: AppState, action: AppAction): AppState {
         ...currentState,
         status: "active",
       };
+      case "finish" : 
+      return {
+        ...currentState,
+        status: "finished",
+        highscore: currentState.points > currentState.highscore ? currentState.points : currentState.highscore 
+      }
     case "newAnswer": {
       const question = currentState.questions.at(currentState.index);
       if (typeof action.payload === "number" || action.payload === null) {
@@ -72,7 +80,7 @@ function reducer(currentState: AppState, action: AppAction): AppState {
 }
 
 export default function App(): JSX.Element {
-  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
+  const [{ questions, status, index, answer, points, highscore }, dispatch] = useReducer(
     reducer,
     initailState
   );
@@ -100,10 +108,11 @@ export default function App(): JSX.Element {
             question={questions[index]}
             dispatch={dispatch}
             answer={answer}
-          />
+            />
+            {answer !== null && <NextButton dispatch={dispatch} index={index} numQuestions={numQuestions} />}
           </>
         )}
-        {answer !== null && <NextButton dispatch={dispatch} />}
+        {status === "finished" && <FinishScreen points={points} totalPossiblePoints={totalPossiblePoints} highscore = {highscore}/>}
       </QuestionBar>
     </div>
   );
