@@ -5,6 +5,7 @@ import Loader from "./Loader";
 import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
+import NextButton from "./NextButton";
 
 import { AppAction, AppState} from "./Type";
 
@@ -50,6 +51,12 @@ function reducer(currentState: AppState, action: AppAction): AppState {
       }
       break;
     }
+    case "nextQuestion":
+      return {
+        ...currentState,
+        index: currentState.index + 1,
+        answer: null
+      }
     default:
       return currentState ;
   }
@@ -75,7 +82,7 @@ export default function App(): JSX.Element {
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
         {status === "active" && <Question question = {questions[index]} dispatch = {dispatch} answer = {answer}/>}
-        
+      {answer !== null && <NextButton dispatch = {dispatch}/>}
       </QuestionBar>
     </div>
   );

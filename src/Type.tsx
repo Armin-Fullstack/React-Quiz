@@ -5,7 +5,7 @@ export interface QestionBarProps {
   children: React.ReactNode
 }
 export interface AppAction {
-  type: "dataReceived" | "dataFailed" | "start" | "newAnswer";
+  type: "dataReceived" | "dataFailed" | "start" | "newAnswer" | "nextQuestion";
   payload?: Question[] | number | null;
 }
 
@@ -39,4 +39,7 @@ export interface OptionsProps {
   options: Question;
   answer: number | null;
   dispatch: Dispatch<AppAction>;
+}
+export interface NextButtonProps {
+  dispatch: Dispatch<AppAction>
 }
