@@ -7,7 +7,8 @@ import StartScreen from "./StartScreen";
 import Question from "./Question";
 import NextButton from "./NextButton";
 
-import { AppAction, AppState} from "./Type";
+import { AppAction, AppState } from "./Type";
+import Progress from "./Progress";
 
 const initailState: AppState = {
   questions: [],
@@ -15,13 +16,18 @@ const initailState: AppState = {
   status: "loading",
   index: 0,
   answer: null,
-  points: 0
+  points: 0,
 };
 
 function reducer(currentState: AppState, action: AppAction): AppState {
   switch (action.type) {
     case "dataReceived":
-      if(Array.isArray(action.payload) && action.payload.every(item => typeof item === "object" && item !== null)) {
+      if (
+        Array.isArray(action.payload) &&
+        action.payload.every(
+          (item) => typeof item === "object" && item !== null
+        )
+      ) {
         return {
           ...currentState,
           questions: action.payload!,
@@ -39,15 +45,17 @@ function reducer(currentState: AppState, action: AppAction): AppState {
         ...currentState,
         status: "active",
       };
-      case "newAnswer" : 
-      {
-      const question = currentState.questions.at(currentState.index)
-      if(typeof action.payload === "number" ||  action.payload === null) {
+    case "newAnswer": {
+      const question = currentState.questions.at(currentState.index);
+      if (typeof action.payload === "number" || action.payload === null) {
         return {
           ...currentState,
           answer: action.payload!,
-          points: action.payload === question.correctOption ? currentState.points + question.points : currentState.points
-        }
+          points:
+            action.payload === question.correctOption
+              ? currentState.points + question.points
+              : currentState.points,
+        };
       }
       break;
     }
@@ -55,17 +63,21 @@ function reducer(currentState: AppState, action: AppAction): AppState {
       return {
         ...currentState,
         index: currentState.index + 1,
-        answer: null
-      }
+        answer: null,
+      };
     default:
-      return currentState ;
+      return currentState;
   }
-  return currentState
+  return currentState;
 }
 
 export default function App(): JSX.Element {
-  const [{ questions, status , index, answer}, dispatch] = useReducer(reducer, initailState);
+  const [{ questions, status, index, answer, points }, dispatch] = useReducer(
+    reducer,
+    initailState
+  );
   const numQuestions = questions.length;
+  const totalPossiblePoints = questions.reduce((acc , curr) => acc + curr.points , 0)
   useEffect(() => {
     fetch("http://localhost:9000/questions")
       .then((res) => res.json())
@@ -81,8 +93,17 @@ export default function App(): JSX.Element {
         {status === "ready" && (
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
-        {status === "active" && <Question question = {questions[index]} dispatch = {dispatch} answer = {answer}/>}
-      {answer !== null && <NextButton dispatch = {dispatch}/>}
+        {status === "active" && (
+          <>
+          <Progress index = {index} numQuestions = {numQuestions} points={points} totalPossiblePoints={totalPossiblePoints} answer = {answer}/>
+          <Question
+            question={questions[index]}
+            dispatch={dispatch}
+            answer={answer}
+          />
+          </>
+        )}
+        {answer !== null && <NextButton dispatch={dispatch} />}
       </QuestionBar>
     </div>
   );

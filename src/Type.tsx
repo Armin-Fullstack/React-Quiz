@@ -43,3 +43,11 @@ export interface OptionsProps {
 export interface NextButtonProps {
   dispatch: Dispatch<AppAction>
 }
+
+export interface ProgressProps {
+  index: number;
+  numQuestions: number;
+  points: number;
+  totalPossiblePoints: number;
+  answer: null | number
+}
