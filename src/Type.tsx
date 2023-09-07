@@ -5,7 +5,7 @@ export interface QestionBarProps {
   children: React.ReactNode
 }
 export interface AppAction {
-  type: "dataReceived" | "dataFailed" | "start" | "newAnswer" | "nextQuestion" | "finish" | "reset";
+  type: "dataReceived" | "dataFailed" | "start" | "newAnswer" | "nextQuestion" | "finish" | "reset" | "tick";
   payload?: Question[] | number | null;
 }
 
@@ -15,7 +15,8 @@ export interface AppState {
   index: number;
   answer: null | number;
   points: number;
-  highscore: number
+  highscore: number;
+  secondsRemaining: null | number
 }
 
 export interface StartScreenProps {
@@ -60,4 +61,13 @@ export interface FinishScreenProps {
   totalPossiblePoints: number;
   highscore: number;
   dispatch: Dispatch<AppAction>;
+}
+
+export interface FooterProps {
+  children: React.ReactNode
+}
+
+export interface TimerProps {
+  dispatch: Dispatch<AppAction>;
+  secondsRemaining: null | number
 }

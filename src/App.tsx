@@ -6,10 +6,14 @@ import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
 import NextButton from "./NextButton";
+import Footer from "./Footer";
 
 import { AppAction, AppState } from "./Type";
 import Progress from "./Progress";
 import FinishScreen from "./FinishScreen";
+import Timer from "./Timer";
+
+const SECS_PER_QUESTION = 30
 
 const initailState: AppState = {
   questions: [],
@@ -19,6 +23,7 @@ const initailState: AppState = {
   answer: null,
   points: 0,
   highscore: 0,
+  secondsRemaining: null
 };
 
 function reducer(currentState: AppState, action: AppAction): AppState {
@@ -46,6 +51,7 @@ function reducer(currentState: AppState, action: AppAction): AppState {
       return {
         ...currentState,
         status: "active",
+        secondsRemaining: currentState.questions.length * SECS_PER_QUESTION
       };
     case "finish":
       return {
@@ -63,8 +69,15 @@ function reducer(currentState: AppState, action: AppAction): AppState {
         answer: null,
         points: 0,
         highscore: 0,
+        secondsRemaining: null,
         status: "ready"
       };
+      case "tick":
+        return {
+          ...currentState,
+          secondsRemaining: typeof currentState.secondsRemaining === "number" ?  currentState.secondsRemaining - 1 : currentState.secondsRemaining ,
+          status: currentState.secondsRemaining === 0 ? "finished" : currentState.status
+        }
     case "newAnswer": {
       const question = currentState.questions.at(currentState.index);
       if (typeof action.payload === "number" || action.payload === null) {
@@ -90,10 +103,9 @@ function reducer(currentState: AppState, action: AppAction): AppState {
   }
   return currentState;
 }
-console.log(questions);
 
 export default function App(): JSX.Element {
-  const [{ questions, status, index, answer, points, highscore }, dispatch] =
+  const [{ questions, status, index, answer, points, highscore, secondsRemaining }, dispatch] =
     useReducer(reducer, initailState);
   const numQuestions = questions.length;
   const totalPossiblePoints = questions.reduce(
@@ -129,13 +141,16 @@ export default function App(): JSX.Element {
               dispatch={dispatch}
               answer={answer}
             />
-            {answer !== null && (
-              <NextButton
-                dispatch={dispatch}
-                index={index}
-                numQuestions={numQuestions}
-              />
-            )}
+            <Footer>
+              <Timer dispatch = {dispatch} secondsRemaining = {secondsRemaining}/>
+              {answer !== null && (
+                <NextButton
+                  dispatch={dispatch}
+                  index={index}
+                  numQuestions={numQuestions}
+                />
+              )}
+            </Footer>
           </>
         )}
         {status === "finished" && (
